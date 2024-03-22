@@ -6,7 +6,7 @@ import Foundation
 import SwiftFormat
 
 @main
-struct SwiftFormatLinter: ParsableCommand  {
+struct SwiftFormatLinter: AsyncParsableCommand  {
     enum Error: LocalizedError {
         case canNotGetFilesOfXcodeProject
         case swiftFormatConfigurationFileMissing
@@ -37,14 +37,14 @@ struct SwiftFormatLinter: ParsableCommand  {
     @Flag(help: "verbose")
     var verbose: Bool = false
     
-    mutating func run() throws {
-        if self.ignoreFilePath == nil {
-            self.ignoreFilePath = SearchFile.search(name: "swift-format-ignore", at: projectPath).first
-            self.ignoreFilePath = URL(fileURLWithPath: projectPath).appendingPathComponent(self.ignoreFilePath!).relativePath
+    mutating func run() async throws {
+        if self.ignoreFilePath == nil, let ignoreFile = SearchFile.search(name: "swift-format-ignore", at: projectPath).first {
+            self.ignoreFilePath = URL(fileURLWithPath: projectPath).appendingPathComponent(ignoreFile).relativePath
         }
         guard let ignoreFilePath else {
             throw Error.swiftFormatIgnoreFileMissing
         }
+        
         verbosePrint("Ignore file path: ", ignoreFilePath)
         verbosePrint("Xcode project path: ", projectPath)
         
