@@ -125,6 +125,7 @@ struct SwiftFormatLinter: ParsableCommand  {
                 File: \(location.file)
                 Line: \(location.line) Col: \(location.column)
                 Message: \(finding.message.text)
+                QuickOpen: \(location.fileName):\(location.line):\(location.column)
                 -----------------------
                 """)
             }
@@ -132,5 +133,14 @@ struct SwiftFormatLinter: ParsableCommand  {
         }
         try linter.lint(contentsOf: path)
         return findings
+    }
+}
+
+extension Finding.Location {
+    var fileName: String {
+        if let last = self.file.split(separator: "/").last {
+            return String(last)
+        }
+        return file
     }
 }
